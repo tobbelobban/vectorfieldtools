@@ -66,8 +66,8 @@ void VectorField3DCurl::process() {
             for(int i = 0; i < vol_dims.z; ++i) {
 				int z_offset = i * xy_;
 				for(int j = 0; j < vol_dims.y; ++j) {
-					int yz_offset = z_offset + vol_dims.y * j;
-					for(int k = 0; k < vol_dims.z; ++k) {
+					int yz_offset = z_offset + vol_dims.x * j;
+					for(int k = 0; k < vol_dims.x; ++k) {
                         // if on domain boundary - skip
                         if( i == 0 || i == vol_dims.x-1 ||
                             j == 0 || j == vol_dims.y-1 ||
@@ -76,18 +76,24 @@ void VectorField3DCurl::process() {
 							continue;
 						}
                         // otherwise, use central differences to compute Jacobian
+						// dx
 						const vec3 u = vec3(vector_field_data[yz_offset + k + 1] - vector_field_data[yz_offset + k - 1]) / (2.0f * spacing.x);
-						const vec3 v = vec3(vector_field_data[yz_offset + k + vol_dims.y] - vector_field_data[yz_offset + k - vol_dims.y]) / (2.0f * spacing.y);
-						const vec3 w = vec3(vector_field_data[yz_offset + k + xy_] - vector_field_data[yz_offset + k - xy_]) / (2.0f * spacing.z);
+						// dy
+						//const vec3 v = vec3(vector_field_data[yz_offset + k + vol_dims.y] - vector_field_data[yz_offset + k - vol_dims.y]) / (2.0f * spacing.y);
+						// dz
+						//const vec3 w = vec3(vector_field_data[yz_offset + k + xy_] - vector_field_data[yz_offset + k - xy_]) / (2.0f * spacing.z);
                         // store curl magnitude in output volume
-                        dstData[yz_offset + k] = length(vec3(v.z - w.y, w.x - u.z, u.y - v.x));
+                        //dstData[yz_offset + k] = length(vec3(v.z - w.y, w.x - u.z, u.y - v.x));
 					}
 				}
 			}
             return std::make_shared<Volume>(dstRam);
         }
     );
-    curl_.setBasis(vector_field->getBasis());
+    curl_->setBasis(vector_field->getBasis());
+	curl_->setOffset(vector_field->getOffset());
+	curl_->setModelMatrix(vector_field->getModelMatrix());
+	curl_->setWorldMatrix(vector_field->getWorldMatrix());
     vol_outport_.setData(curl_);
 }
 
