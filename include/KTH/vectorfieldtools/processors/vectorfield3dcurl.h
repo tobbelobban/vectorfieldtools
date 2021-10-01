@@ -33,7 +33,12 @@
 #include <inviwo/core/processors/processor.h>
 #include <inviwo/core/properties/boolproperty.h>
 #include <inviwo/core/properties/ordinalproperty.h>
+//#include <inviwo/core/util/glm.h>
+//#include <inviwo/core/util/glmvec.h>
 #include <inviwo/core/ports/volumeport.h>
+#include <inviwo/core/datastructures/volume/volume.h>
+#include <inviwo/core/datastructures/volume/volumeram.h>
+#include <inviwo/core/datastructures/volume/volumeramprecision.h>
 
 namespace inviwo {
 
@@ -64,7 +69,7 @@ public:
 private:
     VolumeInport vol_inport_;
 	VolumeOutport vol_outport_;
-	
+
 	std::shared_ptr<Volume> curl_;
 
 };
