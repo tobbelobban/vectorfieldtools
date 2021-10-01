@@ -55,6 +55,7 @@ void VectorField3DCurl::process() {
     const size3_t vol_dims = vector_field->getDimensions();
 	const int xy_ = vol_dims.x * vol_dims.y;
 	const vec3 spacing = vector_field->getWorldSpaceGradientSpacing();
+	float max_curl_mag = 0.0f;
 
 	auto curl_ = vector_field->getRepresentation<VolumeRAM>()->dispatch<std::shared_ptr<Volume>, dispatching::filter::Float3s>(
 		[&](auto vector_field_pr) {
@@ -63,27 +64,29 @@ void VectorField3DCurl::process() {
             auto dstRam = std::make_shared<VolumeRAMPrecision<float>>(vol_dims);
             float* dstData = dstRam->getDataTyped();
             // iterate over each vector
-            for(int i = 0; i < vol_dims.z; ++i) {
-				int z_offset = i * xy_;
-				for(int j = 0; j < vol_dims.y; ++j) {
-					int yz_offset = z_offset + vol_dims.x * j;
-					for(int k = 0; k < vol_dims.x; ++k) {
+            for(int iz = 0; iz < vol_dims.z; ++iz) {
+				int z_offset = iz * xy_;
+				for(int iy = 0; iy < vol_dims.y; ++iy) {
+					int yz_offset = z_offset + vol_dims.x * iy;
+					for(int ix = 0; ix < vol_dims.x; ++ix) {
                         // if on domain boundary - skip
-                        if( i == 0 || i == vol_dims.x-1 ||
-                            j == 0 || j == vol_dims.y-1 ||
-                            k == 0 || k == vol_dims.z-1) {
-							dstData[yz_offset + k] = 0.0f;
+                        if( ix == 0 || ix == vol_dims.x-1 ||
+                            iy == 0 || iy == vol_dims.y-1 ||
+                            iz == 0 || iz == vol_dims.z-1) {
+							dstData[yz_offset + ix] = 0.0f;
 							continue;
 						}
                         // otherwise, use central differences to compute Jacobian
 						// dx
-						const vec3 u = vec3(vector_field_data[yz_offset + k + 1] - vector_field_data[yz_offset + k - 1]) / (2.0f * spacing.x);
+						const vec3 u = vec3(vector_field_data[yz_offset + ix + 1] - vector_field_data[yz_offset + ix - 1]) / (2.0f * spacing.x);
 						// dy
-						//const vec3 v = vec3(vector_field_data[yz_offset + k + vol_dims.y] - vector_field_data[yz_offset + k - vol_dims.y]) / (2.0f * spacing.y);
+						const vec3 v = vec3(vector_field_data[yz_offset + ix + vol_dims.x] - vector_field_data[yz_offset + ix - vol_dims.x]) / (2.0f * spacing.y);
 						// dz
-						//const vec3 w = vec3(vector_field_data[yz_offset + k + xy_] - vector_field_data[yz_offset + k - xy_]) / (2.0f * spacing.z);
+						const vec3 w = vec3(vector_field_data[yz_offset + ix + xy_] - vector_field_data[yz_offset + ix - xy_]) / (2.0f * spacing.z);
                         // store curl magnitude in output volume
                         //dstData[yz_offset + k] = length(vec3(v.z - w.y, w.x - u.z, u.y - v.x));
+						dstData[yz_offset + ix] = length(vec3(v.z - w.y, w.x - u.z, u.y - v.x));
+						if(max_curl_mag < dstData[yz_offset + ix]) max_curl_mag = dstData[yz_offset + ix];
 					}
 				}
 			}
@@ -92,6 +95,9 @@ void VectorField3DCurl::process() {
     );
     curl_->setBasis(vector_field->getBasis());
 	curl_->setOffset(vector_field->getOffset());
+	curl_->copyMetaDataFrom(*vector_field);
+	curl_->dataMap_.valueRange = vec2(0,max_curl_mag);
+	curl_->dataMap_.dataRange = vec2(0, max_curl_mag);
 	curl_->setModelMatrix(vector_field->getModelMatrix());
 	curl_->setWorldMatrix(vector_field->getWorldMatrix());
     vol_outport_.setData(curl_);
