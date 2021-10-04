@@ -27,8 +27,8 @@
  *
  *********************************************************************************/
 
+#include <KTH/vectorfieldtools/processors/okuboweiss.h>
 #include <KTH/vectorfieldtools/processors/vectorfield3dcurl.h>
-#include <KTH/vectorfieldtools/processors/volumetesttool.h>
 #include <KTH/vectorfieldtools/vectorfieldtoolsmodule.h>
 
 namespace inviwo {
@@ -40,9 +40,8 @@ VectorFieldToolsModule::VectorFieldToolsModule(InviwoApplication* app) : InviwoM
     // Register objects that can be shared with the rest of inviwo here:
 
     // Processors
-    registerProcessor<VectorField3DCurl>();
-    // registerProcessor<VectorFieldToolsProcessor>();
-    registerProcessor<VolumeTestTool>();
+    registerProcessor<OkuboWeiss>();
+    registerProcessor<VectorField3DCurl>();    
 
     // Properties
     // registerProperty<VectorFieldToolsProperty>();

@@ -26,48 +26,35 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *********************************************************************************/
-
 #pragma once
 
 #include <KTH/vectorfieldtools/vectorfieldtoolsmoduledefine.h>
-#include <inviwo/core/processors/processor.h>
-#include <inviwo/core/properties/boolproperty.h>
-#include <inviwo/core/properties/ordinalproperty.h>
-#include <inviwo/core/ports/volumeport.h>
 #include <inviwo/core/datastructures/volume/volume.h>
 #include <inviwo/core/datastructures/volume/volumeram.h>
 #include <inviwo/core/datastructures/volume/volumeramprecision.h>
-#include <KTH/vectorfieldtools/algorithm/jacobiancompute.h>
 
 namespace inviwo {
 
-/** \docpage{org.inviwo.VectorField3DCurl, Vector Field3DCurl}
- * ![](org.inviwo.VectorField3DCurl.png?classIdentifier=org.inviwo.VectorField3DCurl)
- * Explanation of how to use the processor.
- *
- * ### Inports
- *   * __<Inport1>__ <description>.
- *
- * ### Outports
- *   * __<Outport1>__ <description>.
- *
- * ### Properties
- *   * __<Prop1>__ <description>.
- *   * __<Prop2>__ <description>
+/**
+ * \brief jacobian for 3D vector field
+ *	Approximates the Jacobian of a 3D vector field using finite differences. 
+	Has a single method get(vector field, pos) which returns the Jacobian at pos
  */
-class IVW_MODULE_VECTORFIELDTOOLS_API VectorField3DCurl : public Processor {
+
+class IVW_MODULE_VECTORFIELDTOOLS_API JacobianCompute {
+	std::vector<float> jacobian_;
+	std::shared_ptr<const Volume> curr_vector_field_;
+	size3_t curr_pos_;
+
+	vec3 forward_difference(const size3_t p1, const size3_t p2, const float h);
+	vec3 backward_difference(const size3_t p1, const size3_t p2, const float h);
+	vec3 central_difference(const size3_t p1, const size3_t p2, const float h);
+
 public:
-    VectorField3DCurl();
-    virtual ~VectorField3DCurl() = default;
-
-    virtual void process() override;
-
-    virtual const ProcessorInfo getProcessorInfo() const override;
-    static const ProcessorInfo processorInfo_;
-
-private:
-    VolumeInport vol_inport_;
-	VolumeOutport vol_outport_;
+    JacobianCompute();
+    virtual ~JacobianCompute() = default;
+	std::vector<float> get(std::shared_ptr<const Volume> vector_field, const size3_t pos);
+	
 };
 
 }  // namespace inviwo

@@ -34,8 +34,8 @@ namespace inviwo {
 // The Class Identifier has to be globally unique. Use a reverse DNS naming scheme
 const ProcessorInfo VectorField3DCurl::processorInfo_{
     "org.inviwo.VectorField3DCurl",      // Class identifier
-    "Vector Field3DCurl",                // Display name
-    "Undefined",              // Category
+    "Vector Field 3D Curl",                // Display name
+    "Vector Field Visualization",              // Category
     CodeState::Experimental,  // Code state
     Tags::None,               // Tags
 };
@@ -53,54 +53,39 @@ VectorField3DCurl::VectorField3DCurl()
 void VectorField3DCurl::process() {
     auto vector_field = vol_inport_.getData();
     const size3_t vol_dims = vector_field->getDimensions();
-	const int xy_ = vol_dims.x * vol_dims.y;
+	const size_t xy_ = vol_dims.x * vol_dims.y;
 	const vec3 spacing = vector_field->getWorldSpaceGradientSpacing();
 	float max_curl_mag = 0.0f;
-
-	auto curl_ = vector_field->getRepresentation<VolumeRAM>()->dispatch<std::shared_ptr<Volume>, dispatching::filter::Float3s>(
-		[&](auto vector_field_pr) {
-			using VolVecType = util::PrecisionValueType<decltype(vector_field_pr)>;
-			const VolVecType* vector_field_data = vector_field_pr->getDataTyped();
-            auto dstRam = std::make_shared<VolumeRAMPrecision<float>>(vol_dims);
-            float* dstData = dstRam->getDataTyped();
-            // iterate over each vector
-            for(int iz = 0; iz < vol_dims.z; ++iz) {
-				int z_offset = iz * xy_;
-				for(int iy = 0; iy < vol_dims.y; ++iy) {
-					int yz_offset = z_offset + vol_dims.x * iy;
-					for(int ix = 0; ix < vol_dims.x; ++ix) {
-                        // if on domain boundary - skip
-                        if( ix == 0 || ix == vol_dims.x-1 ||
-                            iy == 0 || iy == vol_dims.y-1 ||
-                            iz == 0 || iz == vol_dims.z-1) {
-							dstData[yz_offset + ix] = 0.0f;
-							continue;
-						}
-                        // otherwise, use central differences to compute Jacobian
-						// dx
-						const vec3 u = vec3(vector_field_data[yz_offset + ix + 1] - vector_field_data[yz_offset + ix - 1]) / (2.0f * spacing.x);
-						// dy
-						const vec3 v = vec3(vector_field_data[yz_offset + ix + vol_dims.x] - vector_field_data[yz_offset + ix - vol_dims.x]) / (2.0f * spacing.y);
-						// dz
-						const vec3 w = vec3(vector_field_data[yz_offset + ix + xy_] - vector_field_data[yz_offset + ix - xy_]) / (2.0f * spacing.z);
-                        // store curl magnitude in output volume
-                        //dstData[yz_offset + k] = length(vec3(v.z - w.y, w.x - u.z, u.y - v.x));
-						dstData[yz_offset + ix] = length(vec3(v.z - w.y, w.x - u.z, u.y - v.x));
-						if(max_curl_mag < dstData[yz_offset + ix]) max_curl_mag = dstData[yz_offset + ix];
-					}
-				}
+	JacobianCompute jacobian_computer;
+	std::vector<float> j(9, 1.0f);
+	std::shared_ptr<Volume> curl_;
+    auto dst_ram = std::make_shared<VolumeRAMPrecision<vec3>>(vol_dims);
+    vec3* dst_data = dst_ram->getDataTyped();
+    // iterate over each vector
+    for(int iz = 0; iz < vol_dims.z; ++iz) {
+		size_t z_offset = iz * xy_;
+		for(int iy = 0; iy < vol_dims.y; ++iy) {
+			size_t yz_offset = z_offset + vol_dims.x * iy;
+			for(int ix = 0; ix < vol_dims.x; ++ix) {
+				j = jacobian_computer.get(vector_field, size3_t(ix,iy,iz));
+				 //store curl magnitude in output volume
+				dst_data[yz_offset + ix] = vec3(	j[5] - j[7],	// v.z - w.y
+													j[6] - j[2],	// w.x - u.z 
+													j[1] - j[3] );	// u.y - v.x	
+				//if(max_curl_mag < dst_data[yz_offset + ix]) max_curl_mag = dst_data[yz_offset + ix];
 			}
-            return std::make_shared<Volume>(dstRam);
-        }
-    );
-    curl_->setBasis(vector_field->getBasis());
-	curl_->setOffset(vector_field->getOffset());
-	curl_->copyMetaDataFrom(*vector_field);
-	curl_->dataMap_.valueRange = vec2(0,max_curl_mag);
-	curl_->dataMap_.dataRange = vec2(0, max_curl_mag);
-	curl_->setModelMatrix(vector_field->getModelMatrix());
-	curl_->setWorldMatrix(vector_field->getWorldMatrix());
-    vol_outport_.setData(curl_);
+		}
+	}
+	//LogProcessorInfo(max_curl_mag);
+	std::shared_ptr<Volume> curl = std::make_shared<Volume>(dst_ram);
+    curl->setBasis(vector_field->getBasis());
+	curl->setOffset(vector_field->getOffset());
+	curl->copyMetaDataFrom(*vector_field);
+	//curl->dataMap_.valueRange = vec2(0, max_curl_mag);
+	//curl->dataMap_.dataRange = vec2(0, max_curl_mag);
+	curl->setModelMatrix(vector_field->getModelMatrix());
+	curl->setWorldMatrix(vector_field->getWorldMatrix());
+    vol_outport_.setData(curl);
 }
 
 }  // namespace inviwo

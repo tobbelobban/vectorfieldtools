@@ -27,62 +27,31 @@
  *
  *********************************************************************************/
 
-#include <KTH/vectorfieldtools/processors/volumetesttool.h>
+#include <KTH/vectorfieldtools/processors/okuboweiss.h>
 
 namespace inviwo {
 
 // The Class Identifier has to be globally unique. Use a reverse DNS naming scheme
-const ProcessorInfo VolumeTestTool::processorInfo_{
-    "org.inviwo.VolumeTestTool",      // Class identifier
-    "Volume Test Tool",                // Display name
-    "Undefined",              // Category
+const ProcessorInfo OkuboWeiss::processorInfo_{
+    "org.inviwo.OkuboWeiss",      // Class identifier
+    "Okubo Weiss",                // Display name
+    "Vector Field Visualization",              // Category
     CodeState::Experimental,  // Code state
     Tags::None,               // Tags
 };
-const ProcessorInfo VolumeTestTool::getProcessorInfo() const { return processorInfo_; }
+const ProcessorInfo OkuboWeiss::getProcessorInfo() const { return processorInfo_; }
 
-VolumeTestTool::VolumeTestTool()
+OkuboWeiss::OkuboWeiss()
     : Processor()
-    , volume_inport_("volume_inport")
-	, volume_outport_("volume_outport") {
+    , outport_("outport")
+    , position_("position", "Position", vec3(0.0f), vec3(-100.0f), vec3(100.0f)) {
 
-    addPort(volume_inport_);
-    addPort(volume_outport_);
+    addPort(outport_);
+    addProperty(position_);
 }
 
-void VolumeTestTool::process() {
-    const auto vol_dims = volume_inport_.getData()->getDimensions();
-	const auto vol_basis = volume_inport_.getData()->getBasis();
-	const auto vol_offset = volume_inport_.getData()->getOffset();
-	const auto vol_spacing = volume_inport_.getData()->getWorldSpaceGradientSpacing();
-	
-	const auto idx_mat = volume_inport_.getData()->getIndexMatrix();
-	const auto wld_mat = volume_inport_.getData()->getWorldMatrix();
-	const auto mdl_mat = volume_inport_.getData()->getModelMatrix();
-	
-	LogProcessorInfo("dimsensions:");
-	LogProcessorInfo(vol_dims);
-
-	LogProcessorInfo("basis:");
-	LogProcessorInfo(vol_basis);
-	
-	LogProcessorInfo("offset:");
-	LogProcessorInfo(vol_offset);
-
-	LogProcessorInfo("spacing:");
-	LogProcessorInfo(vol_spacing);
-
-	LogProcessorInfo("index matrix:");
-	LogProcessorInfo(idx_mat);
-
-	LogProcessorInfo("world matrix:");
-	LogProcessorInfo(wld_mat);
-
-	LogProcessorInfo("model matrix:");
-	LogProcessorInfo(mdl_mat);
-
-
-	volume_outport_.setData(volume_inport_.getData());
+void OkuboWeiss::process() {
+    // outport_.setData(myImage);
 }
 
 }  // namespace inviwo

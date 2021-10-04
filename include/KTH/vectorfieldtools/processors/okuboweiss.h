@@ -33,13 +33,11 @@
 #include <inviwo/core/processors/processor.h>
 #include <inviwo/core/properties/ordinalproperty.h>
 #include <inviwo/core/ports/imageport.h>
-#include <inviwo/core/ports/volumeport.h>
-
 
 namespace inviwo {
 
-/** \docpage{org.inviwo.VolumeTestTool, Volume Test Tool}
- * ![](org.inviwo.VolumeTestTool.png?classIdentifier=org.inviwo.VolumeTestTool)
+/** \docpage{org.inviwo.OkuboWeiss, Okubo Weiss}
+ * ![](org.inviwo.OkuboWeiss.png?classIdentifier=org.inviwo.OkuboWeiss)
  * Explanation of how to use the processor.
  *
  * ### Inports
@@ -52,10 +50,10 @@ namespace inviwo {
  *   * __<Prop1>__ <description>.
  *   * __<Prop2>__ <description>
  */
-class IVW_MODULE_VECTORFIELDTOOLS_API VolumeTestTool : public Processor {
+class IVW_MODULE_VECTORFIELDTOOLS_API OkuboWeiss : public Processor {
 public:
-    VolumeTestTool();
-    virtual ~VolumeTestTool() = default;
+    OkuboWeiss();
+    virtual ~OkuboWeiss() = default;
 
     virtual void process() override;
 
@@ -63,8 +61,8 @@ public:
     static const ProcessorInfo processorInfo_;
 
 private:
-    VolumeInport volume_inport_;
-    VolumeOutport volume_outport_;
+    ImageOutport outport_;
+    FloatVec3Property position_;
 };
 
 }  // namespace inviwo

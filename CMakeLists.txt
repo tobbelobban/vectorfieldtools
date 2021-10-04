@@ -1,16 +1,18 @@
 ivw_module(VectorFieldTools)
 
 set(HEADER_FILES
+    include/KTH/vectorfieldtools/algorithm/jacobiancompute.h
+    include/KTH/vectorfieldtools/processors/okuboweiss.h
     include/KTH/vectorfieldtools/processors/vectorfield3dcurl.h
-    include/KTH/vectorfieldtools/processors/volumetesttool.h
     include/KTH/vectorfieldtools/vectorfieldtoolsmodule.h
     include/KTH/vectorfieldtools/vectorfieldtoolsmoduledefine.h
 )
 ivw_group("Header Files" ${HEADER_FILES})
 
 set(SOURCE_FILES
+    src/algorithm/jacobiancompute.cpp
+    src/processors/okuboweiss.cpp
     src/processors/vectorfield3dcurl.cpp
-    src/processors/volumetesttool.cpp
     src/vectorfieldtoolsmodule.cpp
 )
 ivw_group("Source Files" ${SOURCE_FILES})
