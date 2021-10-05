@@ -43,15 +43,46 @@ const ProcessorInfo OkuboWeiss::getProcessorInfo() const { return processorInfo_
 
 OkuboWeiss::OkuboWeiss()
     : Processor()
-    , outport_("outport")
-    , position_("position", "Position", vec3(0.0f), vec3(-100.0f), vec3(100.0f)) {
-
-    addPort(outport_);
-    addProperty(position_);
+    , vol_inport_("Vector_field_volume_inport")
+	, vol_outport_("Scalar_field_volume_outport") {
+    addPort(vol_inport_);
+	addPort(vol_outport_);
 }
 
 void OkuboWeiss::process() {
-    // outport_.setData(myImage);
+    const std::shared_ptr<const Volume> vector_field = vol_inport_.getData();
+	const size3_t dims = vector_field->getDimensions();
+	// make dest volume
+	auto okubo_weiss_vol_repr = std::make_shared<VolumeRAMPrecision<float>>(dims);
+    float* okubo_weiss_raw_ptr = okubo_weiss_vol_repr->getDataTyped();
+	// iterate over vector field and compute OW
+	size_t dst_index = 0;
+	std::vector<float> j;
+	float max_val = std::numeric_limits<float>::min();
+	float min_val = std::numeric_limits<float>::max();
+	for(size_t iz = 0; iz < dims.z; ++iz) {
+		for(size_t iy = 0; iy < dims.y; ++iy) {
+			for(size_t ix = 0; ix < dims.x; ++ix) {
+				// compute jacobian at (ix, iy, iz)
+				j = jacobian_computer.get(vector_field, size3_t(ix,iy,iz));
+				// compute & store OW
+				// -2(u_y*v_x + u_z*w_x + w_y*v_z) - u_x^2 - v_y^2 - w_z^2
+				float res = -2.0f * (j[1] * j[3] + j[2] * j[6] + j[7] * j[5]) - j[0] * j[0] - j[4] * j[4] - j[8] * j[8];
+				okubo_weiss_raw_ptr[dst_index++] = res;
+				if(res > max_val) max_val = res;
+				if(res < min_val) min_val = res;
+			}
+		}	
+	}
+	std::shared_ptr<Volume> OW = std::make_shared<Volume>(okubo_weiss_vol_repr);
+    OW->setBasis(vector_field->getBasis());
+	OW->setOffset(vector_field->getOffset());
+	OW->copyMetaDataFrom(*vector_field);	
+	OW->dataMap_.valueRange = vec2(min_val, max_val);
+	OW->dataMap_.dataRange = vec2(min_val, max_val);
+	OW->setModelMatrix(vector_field->getModelMatrix());
+	OW->setWorldMatrix(vector_field->getWorldMatrix());
+    vol_outport_.setData(OW);
 }
 
 }  // namespace inviwo

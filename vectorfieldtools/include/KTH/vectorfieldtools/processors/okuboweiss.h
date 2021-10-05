@@ -33,6 +33,11 @@
 #include <inviwo/core/processors/processor.h>
 #include <inviwo/core/properties/ordinalproperty.h>
 #include <inviwo/core/ports/imageport.h>
+#include <inviwo/core/ports/volumeport.h>
+#include <inviwo/core/datastructures/volume/volume.h>
+#include <inviwo/core/datastructures/volume/volumeram.h>
+#include <inviwo/core/datastructures/volume/volumeramprecision.h>
+#include <KTH/vectorfieldtools/algorithm/jacobiancompute.h>
 
 namespace inviwo {
 
@@ -61,8 +66,10 @@ public:
     static const ProcessorInfo processorInfo_;
 
 private:
-    ImageOutport outport_;
-    FloatVec3Property position_;
+    VolumeInport vol_inport_;
+	VolumeOutport vol_outport_;
+
+	JacobianCompute jacobian_computer;
 };
 
 }  // namespace inviwo

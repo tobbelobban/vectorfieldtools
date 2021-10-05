@@ -38,6 +38,7 @@
 #include <inviwo/core/datastructures/volume/volumeram.h>
 #include <inviwo/core/datastructures/volume/volumeramprecision.h>
 #include <KTH/vectorfieldtools/algorithm/jacobiancompute.h>
+#include <omp.h>
 
 namespace inviwo {
 
@@ -68,6 +69,8 @@ public:
 private:
     VolumeInport vol_inport_;
 	VolumeOutport vol_outport_;
+
+	JacobianCompute jacobian_computer;
 };
 
 }  // namespace inviwo
