@@ -31,10 +31,6 @@
 
 namespace inviwo {
 
-JacobianCompute::JacobianCompute() : jacobian_(9, 0.0f) {
-	
-}
-
 vec3 JacobianCompute::forward_difference(const size3_t p1, const size3_t p2, const float h) {
 	const size3_t vec_dims = curr_vector_field_->getDimensions();
 	const size_t xy_ = vec_dims.x * vec_dims.y;
@@ -74,7 +70,7 @@ vec3 JacobianCompute::central_difference(const size3_t p1, const size3_t p2, con
     );
 }
 
-std::vector<float> JacobianCompute::get(std::shared_ptr<const Volume> vector_field, const size3_t pos) {
+mat3 JacobianCompute::get(const std::shared_ptr<const Volume> vector_field, const size3_t pos) {
 	curr_vector_field_ = vector_field;
 	curr_pos_ = pos;
 	const size3_t field_dims = curr_vector_field_->getDimensions();
@@ -115,17 +111,14 @@ std::vector<float> JacobianCompute::get(std::shared_ptr<const Volume> vector_fie
 		// backward diff in z
 		Fz = backward_difference(curr_pos_ - size3_t(0,0,1), curr_pos_, spacing.z);
 	}
-	jacobian_[0] = Fx.x;
-	jacobian_[1] = Fx.y;
-	jacobian_[2] = Fx.z;
-
-	jacobian_[3] = Fy.x;
-	jacobian_[4] = Fy.y;
-	jacobian_[5] = Fy.z;
-
-	jacobian_[6] = Fz.x;
-	jacobian_[7] = Fz.y;
-	jacobian_[8] = Fz.z;
+	// store jacobian in column-major order...
+	mat3 jacobian_;
+	// column 0
+	jacobian_[0] = vec3(Fx.x, Fy.x, Fz.x);
+	// column 1
+	jacobian_[1] = vec3(Fx.y, Fy.y, Fz.y);
+	// column 2
+	jacobian_[2] = vec3(Fx.z, Fy.z, Fz.z);
 
 	return jacobian_;
 }

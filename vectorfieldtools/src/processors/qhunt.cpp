@@ -27,34 +27,35 @@
  *
  *********************************************************************************/
 
-#include <KTH/vectorfieldtools/processors/okuboweiss.h>
+#include <KTH/vectorfieldtools/processors/qhunt.h>
 
 namespace inviwo {
 
 // The Class Identifier has to be globally unique. Use a reverse DNS naming scheme
-const ProcessorInfo OkuboWeiss::processorInfo_{
-    "org.inviwo.OkuboWeiss",      // Class identifier
-    "Okubo Weiss",                // Display name
-    "Vector Field Visualization",              // Category
+const ProcessorInfo QHunt::processorInfo_{
+    "org.inviwo.QHunt",      // Class identifier
+    "QHunt",                // Display name
+    "Undefined",              // Category
     CodeState::Experimental,  // Code state
     Tags::None,               // Tags
 };
-const ProcessorInfo OkuboWeiss::getProcessorInfo() const { return processorInfo_; }
+const ProcessorInfo QHunt::getProcessorInfo() const { return processorInfo_; }
 
-OkuboWeiss::OkuboWeiss()
+QHunt::QHunt()
     : Processor()
-    , vol_inport_("Vector_field_volume_inport")
-	, vol_outport_("Scalar_field_volume_outport") {
-    addPort(vol_inport_);
-	addPort(vol_outport_);
+    , volume_in_("Vector_field_volume_inport")
+	, volume_out_("Scalar_field_volume_outport") {
+
+    addPort(volume_in_);
+	addPort(volume_out_);
 }
 
-void OkuboWeiss::process() {
-    const std::shared_ptr<const Volume> vector_field = vol_inport_.getData();
+void QHunt::process() {
+	const std::shared_ptr<const Volume> vector_field = volume_in_.getData();
 	const size3_t dims = vector_field->getDimensions();
 	// make dest volume
-	auto okubo_weiss_vol_repr = std::make_shared<VolumeRAMPrecision<float>>(dims);
-    float* okubo_weiss_raw_ptr = okubo_weiss_vol_repr->getDataTyped();
+	auto QHunt_vol_repr = std::make_shared<VolumeRAMPrecision<float>>(dims);
+    float* QHunt_raw_ptr = QHunt_vol_repr->getDataTyped();
 	// iterate over vector field and compute OW
 	size_t dst_index = 0;
 	float max_val = std::numeric_limits<float>::min();
@@ -62,26 +63,24 @@ void OkuboWeiss::process() {
 	for(size_t iz = 0; iz < dims.z; ++iz) {
 		for(size_t iy = 0; iy < dims.y; ++iy) {
 			for(size_t ix = 0; ix < dims.x; ++ix) {
-				// compute jacobian at (ix, iy, iz)
-				mat3 j = jacobian_computer.get(vector_field, size3_t(ix,iy,iz));
-				// compute & store OW
-				// -2(u_y*v_x + u_z*w_x + w_y*v_z) - u_x^2 - v_y^2 - w_z^2
-				float res = -2.0f * (j[1][0]*j[0][1] + j[2][0]*j[0][2] + j[1][2]*j[2][1]) - j[0][0]*j[0][0] - j[1][1]*j[1][1] - j[2][2]*j[2][2];
-				okubo_weiss_raw_ptr[dst_index++] = res;
+				// compute Omega^2 + S^2
+				const mat3 Omega2S2 = omega2s2_.get(vector_field, size3_t(ix,iy,iz));
+				const float res = -Omega2S2[0][0] - Omega2S2[1][1] - Omega2S2[2][2];
+				QHunt_raw_ptr[dst_index++] = res;
 				if(res > max_val) max_val = res;
 				if(res < min_val) min_val = res;
 			}
 		}	
 	}
-	std::shared_ptr<Volume> OW = std::make_shared<Volume>(okubo_weiss_vol_repr);
-    OW->setBasis(vector_field->getBasis());
-	OW->setOffset(vector_field->getOffset());
-	OW->copyMetaDataFrom(*vector_field);	
-	OW->dataMap_.valueRange = vec2(min_val, max_val);
-	OW->dataMap_.dataRange = vec2(min_val, max_val);
-	OW->setModelMatrix(vector_field->getModelMatrix());
-	OW->setWorldMatrix(vector_field->getWorldMatrix());
-    vol_outport_.setData(OW);
+	std::shared_ptr<Volume> QHunt = std::make_shared<Volume>(QHunt_vol_repr);
+    QHunt->setBasis(vector_field->getBasis());
+	QHunt->setOffset(vector_field->getOffset());
+	QHunt->copyMetaDataFrom(*vector_field);	
+	QHunt->dataMap_.valueRange = vec2(min_val, max_val);
+	QHunt->dataMap_.dataRange = vec2(min_val, max_val);
+	QHunt->setModelMatrix(vector_field->getModelMatrix());
+	QHunt->setWorldMatrix(vector_field->getWorldMatrix());
+    volume_out_.setData(QHunt);
 }
 
 }  // namespace inviwo

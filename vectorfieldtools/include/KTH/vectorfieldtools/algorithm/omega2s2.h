@@ -29,31 +29,19 @@
 #pragma once
 
 #include <KTH/vectorfieldtools/vectorfieldtoolsmoduledefine.h>
-#include <inviwo/core/datastructures/volume/volume.h>
-#include <inviwo/core/datastructures/volume/volumeram.h>
-#include <inviwo/core/datastructures/volume/volumeramprecision.h>
+#include <KTH/vectorfieldtools/algorithm/jacobiancompute.h>
 
 namespace inviwo {
 
 /**
- * \brief jacobian for 3D vector field
- *	Approximates the Jacobian of a 3D vector field using finite differences. 
-	Has a single method get(vector field, pos) which returns the Jacobian at pos
+ * \brief VERY_BRIEFLY_DESCRIBE_THE_CLASS
+ * DESCRIBE_THE_CLASS_FROM_A_DEVELOPER_PERSPECTIVE
  */
-
-class IVW_MODULE_VECTORFIELDTOOLS_API JacobianCompute {
-	std::shared_ptr<const Volume> curr_vector_field_;
-	size3_t curr_pos_;
-
-	vec3 forward_difference(const size3_t p1, const size3_t p2, const float h);
-	vec3 backward_difference(const size3_t p1, const size3_t p2, const float h);
-	vec3 central_difference(const size3_t p1, const size3_t p2, const float h);
-
+class IVW_MODULE_VECTORFIELDTOOLS_API Omega2S2 {
 public:
-    JacobianCompute() = default;
-    virtual ~JacobianCompute() = default;
+    Omega2S2() = default;
+    virtual ~Omega2S2() = default;
 	mat3 get(const std::shared_ptr<const Volume> vector_field, const size3_t pos);
-	
 };
 
 }  // namespace inviwo

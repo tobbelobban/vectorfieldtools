@@ -53,7 +53,6 @@ VectorField3DCurl::VectorField3DCurl()
 void VectorField3DCurl::process() {
     auto vector_field = vol_inport_.getData();
     const size3_t vol_dims = vector_field->getDimensions();
-	std::vector<float> j;
     auto dst_ram = std::make_shared<VolumeRAMPrecision<vec3>>(vol_dims);
     vec3* dst_data = dst_ram->getDataTyped();
     // iterate over each vector
@@ -61,11 +60,12 @@ void VectorField3DCurl::process() {
     for(int iz = 0; iz < vol_dims.z; ++iz) {
 		for(int iy = 0; iy < vol_dims.y; ++iy) {
 			for(int ix = 0; ix < vol_dims.x; ++ix) {
-				j = jacobian_computer.get(vector_field, size3_t(ix,iy,iz));
-				 //store curl 
-				dst_data[dst_index++] = -1.0f*vec3(	j[5] - j[7],	// v.z - w.y
-													j[6] - j[2],	// w.x - u.z 
-													j[1] - j[3] );	// u.y - v.x	
+				// jacobian in column-major order
+				mat3 j = jacobian_computer.get(vector_field, size3_t(ix,iy,iz));
+				 //compute & store curl 
+				dst_data[dst_index++] = -1.0f*vec3(	j[2][1] - j[1][2],		// v.z - w.y
+													j[0][2] - j[2][0],		// w.x - u.z 
+													j[1][0] - j[0][1] );	// u.y - v.x	
 			}
 		}
 	}

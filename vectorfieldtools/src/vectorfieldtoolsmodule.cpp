@@ -28,6 +28,7 @@
  *********************************************************************************/
 
 #include <KTH/vectorfieldtools/processors/okuboweiss.h>
+#include <KTH/vectorfieldtools/processors/qhunt.h>
 #include <KTH/vectorfieldtools/processors/vectorfield3dcurl.h>
 #include <KTH/vectorfieldtools/vectorfieldtoolsmodule.h>
 
@@ -41,6 +42,7 @@ VectorFieldToolsModule::VectorFieldToolsModule(InviwoApplication* app) : InviwoM
 
     // Processors
     registerProcessor<OkuboWeiss>();
+    registerProcessor<QHunt>();
     registerProcessor<VectorField3DCurl>();    
 
     // Properties

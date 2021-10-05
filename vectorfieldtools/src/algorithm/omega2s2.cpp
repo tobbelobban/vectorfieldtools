@@ -26,34 +26,33 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *********************************************************************************/
-#pragma once
 
-#include <KTH/vectorfieldtools/vectorfieldtoolsmoduledefine.h>
-#include <inviwo/core/datastructures/volume/volume.h>
-#include <inviwo/core/datastructures/volume/volumeram.h>
-#include <inviwo/core/datastructures/volume/volumeramprecision.h>
+#include <KTH/vectorfieldtools/algorithm/omega2s2.h>
 
 namespace inviwo {
 
-/**
- * \brief jacobian for 3D vector field
- *	Approximates the Jacobian of a 3D vector field using finite differences. 
-	Has a single method get(vector field, pos) which returns the Jacobian at pos
- */
-
-class IVW_MODULE_VECTORFIELDTOOLS_API JacobianCompute {
-	std::shared_ptr<const Volume> curr_vector_field_;
-	size3_t curr_pos_;
-
-	vec3 forward_difference(const size3_t p1, const size3_t p2, const float h);
-	vec3 backward_difference(const size3_t p1, const size3_t p2, const float h);
-	vec3 central_difference(const size3_t p1, const size3_t p2, const float h);
-
-public:
-    JacobianCompute() = default;
-    virtual ~JacobianCompute() = default;
-	mat3 get(const std::shared_ptr<const Volume> vector_field, const size3_t pos);
+mat3 Omega2S2::get(const std::shared_ptr<const Volume> vector_field, const size3_t pos) {
+	JacobianCompute jacobian_computer;
+	// glm::mat3 stores in column-major order
+	const mat3 jacobian = jacobian_computer.get(vector_field, pos);
+	mat3 S;
+	// column 0
+	S[0] = vec3(jacobian[0][0], .5f * (jacobian[0][1] + jacobian[1][0]), .5f * (jacobian[0][2] + jacobian[2][0]));
+	// column 1
+	S[1] = vec3(.5f * (jacobian[0][1] + jacobian[1][0]), jacobian[1][1], .5f * (jacobian[1][2] + jacobian[2][1]));
+	// column 2
+	S[2] = vec3(.5f * (jacobian[0][2] + jacobian[2][0]), .5f * (jacobian[1][2] + jacobian[2][1]), jacobian[2][2]);
 	
-};
+	mat3 Omega;
+	// column 0
+	Omega[0] = vec3(jacobian[0][0], .5f * (jacobian[1][0] - jacobian[0][1]), .5f * (jacobian[2][0] - jacobian[0][2]));
+	// column 1
+	Omega[1] = vec3(.5f * (jacobian[0][1] - jacobian[1][0]), jacobian[1][1], .5f * (jacobian[2][1] - jacobian[1][2]));
+	// column 2
+	Omega[2] = vec3(.5f * (jacobian[0][2] - jacobian[2][0]), .5f * (jacobian[1][2] - jacobian[2][1]), jacobian[2][2]);
+
+	// Omega^2 + S^2
+	return Omega*Omega + S*S;
+}
 
 }  // namespace inviwo
