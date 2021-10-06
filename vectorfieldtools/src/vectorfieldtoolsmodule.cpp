@@ -27,22 +27,32 @@
  *
  *********************************************************************************/
 
-#include <KTH/vectorfieldtools/processors/okuboweiss.h>
-#include <KTH/vectorfieldtools/processors/qhunt.h>
-#include <KTH/vectorfieldtools/processors/vectorfield3dcurl.h>
 #include <KTH/vectorfieldtools/vectorfieldtoolsmodule.h>
+
+#include <modules/opengl/shader/shadermanager.h>
+#include <modules/opengl/openglmodule.h>
+#include <modules/opengl/openglcapabilities.h>
+
+#include <KTH/vectorfieldtools/processors/okuboweiss.h>
+#include <KTH/vectorfieldtools/processors/okuboweissgl.h>
+#include <KTH/vectorfieldtools/processors/qhunt.h>
+#include <KTH/vectorfieldtools/processors/qhuntgl.h>
+#include <KTH/vectorfieldtools/processors/vectorfield3dcurl.h>
+
 
 namespace inviwo {
 
 VectorFieldToolsModule::VectorFieldToolsModule(InviwoApplication* app) : InviwoModule(app, "VectorFieldTools") {
     // Add a directory to the search path of the Shadermanager
-    // ShaderManager::getPtr()->addShaderSearchPath(getPath(ModulePath::GLSL));
-
+    //ShaderManager::getPtr()->addShaderSearchPath(getPath(ModulePath::GLSL));
     // Register objects that can be shared with the rest of inviwo here:
-
+	ShaderManager::getPtr()->addShaderSearchPath(getPath(ModulePath::GLSL));
+	//OpenCL::getPtr()->addCommonIncludeDirectory(getPath(ModulePath::CL));
     // Processors
     registerProcessor<OkuboWeiss>();
+    registerProcessor<OkuboWeissGL>();
     registerProcessor<QHunt>();
+    registerProcessor<QHuntGL>();
     registerProcessor<VectorField3DCurl>();    
 
     // Properties

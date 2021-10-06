@@ -4,7 +4,9 @@ set(HEADER_FILES
     include/KTH/vectorfieldtools/algorithm/jacobiancompute.h
     include/KTH/vectorfieldtools/algorithm/omega2s2.h
     include/KTH/vectorfieldtools/processors/okuboweiss.h
+    include/KTH/vectorfieldtools/processors/okuboweissgl.h
     include/KTH/vectorfieldtools/processors/qhunt.h
+    include/KTH/vectorfieldtools/processors/qhuntgl.h
     include/KTH/vectorfieldtools/processors/vectorfield3dcurl.h
     include/KTH/vectorfieldtools/vectorfieldtoolsmodule.h
     include/KTH/vectorfieldtools/vectorfieldtoolsmoduledefine.h
@@ -15,7 +17,9 @@ set(SOURCE_FILES
     src/algorithm/jacobiancompute.cpp
     src/algorithm/omega2s2.cpp
     src/processors/okuboweiss.cpp
+    src/processors/okuboweissgl.cpp
     src/processors/qhunt.cpp
+    src/processors/qhuntgl.cpp
     src/processors/vectorfield3dcurl.cpp
     src/vectorfieldtoolsmodule.cpp
 )
