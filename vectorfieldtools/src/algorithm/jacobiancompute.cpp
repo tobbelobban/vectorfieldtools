@@ -111,14 +111,14 @@ mat3 JacobianCompute::get(const std::shared_ptr<const Volume> vector_field, cons
 		// backward diff in z
 		Fz = backward_difference(curr_pos_ - size3_t(0,0,1), curr_pos_, spacing.z);
 	}
-	// store jacobian in column-major order...
+	// store jacobian in column-major order... J = [Fx Fy Fz]
 	mat3 jacobian_;
 	// column 0
-	jacobian_[0] = vec3(Fx.x, Fy.x, Fz.x);
+	jacobian_[0] = Fx;
 	// column 1
-	jacobian_[1] = vec3(Fx.y, Fy.y, Fz.y);
+	jacobian_[1] = Fy;
 	// column 2
-	jacobian_[2] = vec3(Fx.z, Fy.z, Fz.z);
+	jacobian_[2] = Fz;
 
 	return jacobian_;
 }

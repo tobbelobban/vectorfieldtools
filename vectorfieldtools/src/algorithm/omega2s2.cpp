@@ -45,11 +45,11 @@ mat3 Omega2S2::get(const std::shared_ptr<const Volume> vector_field, const size3
 	
 	mat3 Omega;
 	// column 0
-	Omega[0] = vec3(jacobian[0][0], .5f * (jacobian[1][0] - jacobian[0][1]), .5f * (jacobian[2][0] - jacobian[0][2]));
+	Omega[0] = vec3(jacobian[0][0], .5f * (jacobian[0][1] - jacobian[1][0]), .5f * (jacobian[0][2] - jacobian[2][0]));
 	// column 1
-	Omega[1] = vec3(.5f * (jacobian[0][1] - jacobian[1][0]), jacobian[1][1], .5f * (jacobian[2][1] - jacobian[1][2]));
+	Omega[1] = vec3(.5f * (jacobian[1][0] - jacobian[0][1]), jacobian[1][1], .5f * (jacobian[1][2] - jacobian[2][1]));
 	// column 2
-	Omega[2] = vec3(.5f * (jacobian[0][2] - jacobian[2][0]), .5f * (jacobian[1][2] - jacobian[2][1]), jacobian[2][2]);
+	Omega[2] = vec3(.5f * (jacobian[2][0] - jacobian[0][2]), .5f * (jacobian[2][1] - jacobian[1][2]), jacobian[2][2]);
 
 	// Omega^2 + S^2
 	return Omega*Omega + S*S;
