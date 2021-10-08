@@ -50,6 +50,7 @@ OkuboWeiss::OkuboWeiss()
 }
 
 void OkuboWeiss::process() {
+	
     const std::shared_ptr<const Volume> vector_field = vol_inport_.getData();
 	const size3_t dims = vector_field->getDimensions();
 	// make dest volume
@@ -59,11 +60,14 @@ void OkuboWeiss::process() {
 	size_t dst_index = 0;
 	float max_val = std::numeric_limits<float>::min();
 	float min_val = std::numeric_limits<float>::max();
+	Eigen::EigenSolver<Eigen::Matrix3f> solver;
 	for(size_t iz = 0; iz < dims.z; ++iz) {
 		for(size_t iy = 0; iy < dims.y; ++iy) {
 			for(size_t ix = 0; ix < dims.x; ++ix) {
 				// compute jacobian at (ix, iy, iz)
 				mat3 j = jacobian_computer.get(vector_field, size3_t(ix,iy,iz));
+				Eigen::Matrix<float, 3, 3> m;
+				solver.compute(m,false);
 				// compute & store OW
 				// -2(u_y*v_x + u_z*w_x + w_y*v_z) - u_x^2 - v_y^2 - w_z^2
 				float res = -2.0f * (j[1][0]*j[0][1] + j[2][0]*j[0][2] + j[1][2]*j[2][1]) - j[0][0]*j[0][0] - j[1][1]*j[1][1] - j[2][2]*j[2][2];
