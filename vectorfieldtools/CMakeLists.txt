@@ -3,6 +3,7 @@ ivw_module(VectorFieldTools)
 set(HEADER_FILES
     include/KTH/vectorfieldtools/algorithm/jacobiancompute.h
     include/KTH/vectorfieldtools/algorithm/omega2s2.h
+    include/KTH/vectorfieldtools/processors/lambda2.h
     include/KTH/vectorfieldtools/processors/okuboweiss.h
     include/KTH/vectorfieldtools/processors/okuboweissgl.h
     include/KTH/vectorfieldtools/processors/qhunt.h
@@ -16,6 +17,7 @@ ivw_group("Header Files" ${HEADER_FILES})
 set(SOURCE_FILES
     src/algorithm/jacobiancompute.cpp
     src/algorithm/omega2s2.cpp
+    src/processors/lambda2.cpp
     src/processors/okuboweiss.cpp
     src/processors/okuboweissgl.cpp
     src/processors/qhunt.cpp

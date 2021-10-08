@@ -2,9 +2,10 @@
 # List modules on the format "Inviwo<ModuleName>Module"
 set(dependencies
     #InviwoOpenGLModule # Example dependency 
-	InviwoBaseModule
-	InviwoOpenGLModule
+    InviwoBaseModule
+    InviwoOpenGLModule
     InviwoBaseGLModule  
+    InviwoEigenUtilsModule
 )
 
 # Add an alias for this module. Several modules can share an alias. 

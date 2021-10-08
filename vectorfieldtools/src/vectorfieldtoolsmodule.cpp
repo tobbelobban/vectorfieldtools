@@ -27,6 +27,7 @@
  *
  *********************************************************************************/
 
+#include <KTH/vectorfieldtools/processors/lambda2.h>
 #include <KTH/vectorfieldtools/vectorfieldtoolsmodule.h>
 
 #include <modules/opengl/shader/shadermanager.h>
@@ -49,6 +50,7 @@ VectorFieldToolsModule::VectorFieldToolsModule(InviwoApplication* app) : InviwoM
 	ShaderManager::getPtr()->addShaderSearchPath(getPath(ModulePath::GLSL));
 	//OpenCL::getPtr()->addCommonIncludeDirectory(getPath(ModulePath::CL));
     // Processors
+    registerProcessor<Lambda2>();
     registerProcessor<OkuboWeiss>();
     registerProcessor<OkuboWeissGL>();
     registerProcessor<QHunt>();
