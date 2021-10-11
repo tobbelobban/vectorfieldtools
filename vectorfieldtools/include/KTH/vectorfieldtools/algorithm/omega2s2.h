@@ -38,6 +38,8 @@ namespace inviwo {
  * DESCRIBE_THE_CLASS_FROM_A_DEVELOPER_PERSPECTIVE
  */
 class IVW_MODULE_VECTORFIELDTOOLS_API Omega2S2 {
+private:
+	JacobianCompute jacobian_computer_;
 public:
     Omega2S2() = default;
     virtual ~Omega2S2() = default;

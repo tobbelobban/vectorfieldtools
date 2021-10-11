@@ -52,9 +52,9 @@ Lambda2::Lambda2()
 
 Eigen::Matrix3f Lambda2::glmToEigenMat3FLOAT(const glm::mat3 glm_mat3) {
 	Eigen::Matrix3f Eigen_mat3;
-	for(size_t i = 0; i < 3; ++i) {
-		for(size_t j = 0; j < 3; ++j) {
-			Eigen_mat3(j,i) = glm_mat3[i][j];	
+	for(size_t col = 0; col < 3; ++col) {
+		for(size_t row = 0; row < 3; ++row) {
+			Eigen_mat3(row,col) = glm_mat3[col][row];
 		}
 	}
 	return Eigen_mat3;
@@ -66,12 +66,9 @@ void Lambda2::process() {
 	// make dest volume
 	auto L2_vol_repr = std::make_shared<VolumeRAMPrecision<float>>(dims);
     float* L2_raw_ptr = L2_vol_repr->getDataTyped();
-	// for computing eigenvalues and max/mins
-	Eigen::EigenSolver<Eigen::Matrix3f> eigen_3f_solver;
-	Omega2S2 omega2s2;
+	// iterate over vector field and compute L2
 	float max_val = std::numeric_limits<float>::min();
 	float min_val = std::numeric_limits<float>::max();
-	// iterate over vector field and compute L2
 	size_t dst_index = 0;
 	for(size_t iz = 0; iz < dims.z; ++iz) {
 		for(size_t iy = 0; iy < dims.y; ++iy) {

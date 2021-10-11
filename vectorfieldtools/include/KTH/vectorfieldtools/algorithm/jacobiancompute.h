@@ -43,7 +43,6 @@ namespace inviwo {
 
 class IVW_MODULE_VECTORFIELDTOOLS_API JacobianCompute {
 	std::shared_ptr<const Volume> curr_vector_field_;
-	size3_t curr_pos_;
 
 	vec3 forward_difference(const size3_t p1, const size3_t p2, const float h);
 	vec3 backward_difference(const size3_t p1, const size3_t p2, const float h);
@@ -52,6 +51,14 @@ class IVW_MODULE_VECTORFIELDTOOLS_API JacobianCompute {
 public:
     JacobianCompute() = default;
     virtual ~JacobianCompute() = default;
+	
+	/*
+	* gets the Jacobian at volume grid point pos = [x,y,z]
+	* in column-major order.
+	*	u_x		u_y		u_z
+	*	v_x		v_y		v_z
+	*	w_x		w_y		w_z
+	*/
 	mat3 get(const std::shared_ptr<const Volume> vector_field, const size3_t pos);
 	
 };

@@ -68,6 +68,10 @@ public:
 private:
     VolumeInport volume_in_;
 	VolumeOutport volume_out_;	
+
+	Omega2S2 omega2s2;
+	Eigen::EigenSolver<Eigen::Matrix3f> eigen_3f_solver;
+
 	Eigen::Matrix3f glmToEigenMat3FLOAT(const glm::mat3);
 };
 

@@ -31,25 +31,41 @@
 
 namespace inviwo {
 
-mat3 Omega2S2::get(const std::shared_ptr<const Volume> vector_field, const size3_t pos) {
-	JacobianCompute jacobian_computer;
-	// glm::mat3 stores in column-major order
-	const mat3 jacobian = jacobian_computer.get(vector_field, pos);
-	mat3 S;
-	// column 0
-	S[0] = vec3(jacobian[0][0], .5f * (jacobian[0][1] + jacobian[1][0]), .5f * (jacobian[0][2] + jacobian[2][0]));
-	// column 1
-	S[1] = vec3(.5f * (jacobian[0][1] + jacobian[1][0]), jacobian[1][1], .5f * (jacobian[1][2] + jacobian[2][1]));
-	// column 2
-	S[2] = vec3(.5f * (jacobian[0][2] + jacobian[2][0]), .5f * (jacobian[1][2] + jacobian[2][1]), jacobian[2][2]);
+mat3 Omega2S2::get(const std::shared_ptr<const Volume> vector_field, const size3_t pos) {	
+	// compute jacobian at pos
+	const mat3 jacobian = jacobian_computer_.get(vector_field, pos);
 	
-	mat3 Omega;
+	// S = .5(J + transpose(J))
+	mat3 S;
+	
 	// column 0
-	Omega[0] = vec3(jacobian[0][0], .5f * (jacobian[0][1] - jacobian[1][0]), .5f * (jacobian[0][2] - jacobian[2][0]));
+	S[0] = vec3(	jacobian[0][0],									// u_x
+					.5f * (jacobian[0][1] + jacobian[1][0]),		// .5(v_x + u_y)
+					.5f * (jacobian[0][2] + jacobian[2][0])		);	// .5(w_x + u_z)
 	// column 1
-	Omega[1] = vec3(.5f * (jacobian[1][0] - jacobian[0][1]), jacobian[1][1], .5f * (jacobian[1][2] - jacobian[2][1]));
+	S[1] = vec3(	.5f * (jacobian[1][0] + jacobian[0][1]),		// .5(u_y + v_x)
+					jacobian[1][1],									// v_y
+					.5f * (jacobian[1][2] + jacobian[2][1])		);	// .5(w_y + v_z)
 	// column 2
-	Omega[2] = vec3(.5f * (jacobian[2][0] - jacobian[0][2]), .5f * (jacobian[2][1] - jacobian[1][2]), jacobian[2][2]);
+	S[2] = vec3(	.5f * (jacobian[2][0] + jacobian[0][2]),		// .5(u_z + w_x)
+					.5f * (jacobian[2][1] + jacobian[1][2]),		// .5(v_z + w_y)
+					jacobian[2][2]								);	// w_z
+	
+	// Omega = .5(J - transpose(J))
+	mat3 Omega;		
+	
+	// column 0
+	Omega[0] = vec3(	0.0f,											// u_x - u_x = 0
+						.5f * (jacobian[0][1] - jacobian[1][0]),		// .5(v_x - u_y)
+						.5f * (jacobian[0][2] - jacobian[2][0])		);	// .5(w_x - u_z)
+	// column 1
+	Omega[1] = vec3(	.5f * (jacobian[1][0] - jacobian[0][1]),		// .5(u_y - v_x)
+						0.0f,											// v_y - v_y = 0
+						.5f * (jacobian[1][2] - jacobian[2][1])		);	// .5(w_y - v_z)
+	// column 2
+	Omega[2] = vec3(	.5f * (jacobian[2][0] - jacobian[0][2]),		// .5(u_z - w_x)
+						.5f * (jacobian[2][1] - jacobian[1][2]),		// .5(v_z - w_y)
+						0.0f										);	// w_z - w_z = 0
 
 	// Omega^2 + S^2
 	return Omega*Omega + S*S;

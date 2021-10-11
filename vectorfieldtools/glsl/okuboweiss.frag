@@ -49,6 +49,7 @@ void main() {
     vec3 Fz = (getVoxel(volume, volumeParameters, texCoord_.xyz + oz).xyz -
                getVoxel(volume, volumeParameters, texCoord_.xyz - oz).xyz) /
               (2.0f*volumeParameters.worldSpaceGradientSpacing.z);
-	// -2(u_y*v_x + u_z*w_x + w_y*v_z) - u_x^2 - v_y^2 - w_z^2
-    FragData0 = vec4(-2.0f * (Fy.x*Fx.y + Fz.x*Fx.z + Fy.z*Fz.y) - Fx.x*Fx.x - Fy.y*Fy.y - Fz.z*Fz.z);
+
+	// -2(v_x*u_y + w_x*u_z + v_z*w_y) - u_x^2 - v_y^2 - w_z^2
+    FragData0 = vec4(-2.0f * (Fx.y * Fy.x + Fx.z * Fz.x + Fz.y * Fy.z) - Fx.x*Fx.x - Fy.y*Fy.y - Fz.z*Fz.z);
 }

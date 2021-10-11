@@ -31,7 +31,10 @@
 
 namespace inviwo {
 
-vec3 JacobianCompute::forward_difference(const size3_t p1, const size3_t p2, const float h) {
+/*
+* Does (p2 - p1)/h
+*/
+vec3 JacobianCompute::forward_difference(const size3_t p2, const size3_t p1, const float h) {
 	const size3_t vec_dims = curr_vector_field_->getDimensions();
 	const size_t xy_ = vec_dims.x * vec_dims.y;
 	const size_t p1_index = xy_ * p1.z + vec_dims.x * p1.y + p1.x;
@@ -44,72 +47,64 @@ vec3 JacobianCompute::forward_difference(const size3_t p1, const size3_t p2, con
     );
 }
 
-vec3 JacobianCompute::backward_difference(const size3_t p1, const size3_t p2, const float h) {
-	const size3_t vec_dims = curr_vector_field_->getDimensions();
-	const size_t xy_ = vec_dims.x * vec_dims.y;
-	const size_t p1_index = xy_ * p1.z + vec_dims.x * p1.y + p1.x;
-	const size_t p2_index = xy_ * p2.z + vec_dims.x * p2.y + p2.x;
-	return curr_vector_field_->getRepresentation<VolumeRAM>()->dispatch<vec3, dispatching::filter::Float3s>(
-		[h, p1_index, p2_index](auto vector_field_pr) {
-			const auto vector_field_data = vector_field_pr->getDataTyped();
-			return vec3(vector_field_data[p2_index] - vector_field_data[p1_index]) / h;
-        }
-    );
+/*
+* Does (p2 - p1)/h
+*/
+vec3 JacobianCompute::backward_difference(const size3_t p2, const size3_t p1, const float h) {
+	return forward_difference(p2,p1,h);
 }
 
-vec3 JacobianCompute::central_difference(const size3_t p1, const size3_t p2, const float h) {
-	const size3_t vec_dims = curr_vector_field_->getDimensions();
-	const size_t xy_ = vec_dims.x * vec_dims.y;
-	const size_t p1_index = xy_ * p1.z + vec_dims.x * p1.y + p1.x;
-	const size_t p2_index = xy_ * p2.z + vec_dims.x * p2.y + p2.x;
-	return curr_vector_field_->getRepresentation<VolumeRAM>()->dispatch<vec3, dispatching::filter::Float3s>(
-		[h, p1_index, p2_index](auto vector_field_pr) {
-			const auto vector_field_data = vector_field_pr->getDataTyped();
-			return vec3(vector_field_data[p2_index] - vector_field_data[p1_index]) / (2.0f * h);
-        }
-    );
+/*
+* Does (p2 - p1)/(2h)
+*/
+vec3 JacobianCompute::central_difference(const size3_t p2, const size3_t p1, const float h) {
+	return forward_difference(p2,p1, 2.0f*h);
 }
 
+/*
+* gets the Jacobian at volume grid point pos = [x,y,z]
+*/
 mat3 JacobianCompute::get(const std::shared_ptr<const Volume> vector_field, const size3_t pos) {
+	
+	// store pointer to current vector field 
 	curr_vector_field_ = vector_field;
-	curr_pos_ = pos;
 	const size3_t field_dims = curr_vector_field_->getDimensions();
 	const vec3 spacing = curr_vector_field_->getWorldSpaceGradientSpacing();
 	// dx
 	vec3 Fx(0,0,0);
-	if(curr_pos_.x > 0 && curr_pos_.x < field_dims.x-1) {
+	if(pos.x > 0 && pos.x < field_dims.x-1) {
 		// central diff in x
-		Fx = central_difference(curr_pos_ + size3_t(1,0,0), curr_pos_ - size3_t(1,0,0), spacing.x);
-	} else if(curr_pos_.x == 0) {
+		Fx = central_difference(pos + size3_t(1,0,0), pos - size3_t(1,0,0), spacing.x);
+	} else if(pos.x == 0) {
 		// forward diff in x
-		Fx = forward_difference(curr_pos_, curr_pos_ + size3_t(1,0,0), spacing.x);
+		Fx = forward_difference(pos + size3_t(1,0,0), pos, spacing.x);
 	} else {
 		// backward diff in x
-		Fx = backward_difference(curr_pos_ - size3_t(1,0,0), curr_pos_, spacing.x);
+		Fx = backward_difference(pos, pos - size3_t(1,0,0), spacing.x);
 	}
 	// dy
 	vec3 Fy(0,0,0);
-	if(curr_pos_.y > 0 && curr_pos_.y < field_dims.y-1) {
+	if(pos.y > 0 && pos.y < field_dims.y-1) {
 		// central diff in y
-		Fy = central_difference(curr_pos_ + size3_t(0,1,0), curr_pos_ - size3_t(0,1,0), spacing.y);
-	} else if(curr_pos_.y == 0) {
+		Fy = central_difference(pos + size3_t(0,1,0), pos - size3_t(0,1,0), spacing.y);
+	} else if(pos.y == 0) {
 		// forward diff in y
-		Fy = forward_difference(curr_pos_, curr_pos_ + size3_t(0,1,0), spacing.y);
+		Fy = forward_difference(pos + size3_t(0,1,0), pos, spacing.y);
 	} else {
 		// backward diff in y
-		Fy = backward_difference(curr_pos_ - size3_t(0,1,0), curr_pos_, spacing.y);
+		Fy = backward_difference(pos, pos - size3_t(0,1,0), spacing.y);
 	}
 	// dz
 	vec3 Fz(0,0,0);
-	if(curr_pos_.z > 0 && curr_pos_.z < field_dims.z-1) {
+	if(pos.z > 0 && pos.z < field_dims.z-1) {
 		// central diff in z
-		Fz = central_difference(curr_pos_ + size3_t(0,0,1), curr_pos_ - size3_t(0,0,1), spacing.z);
-	} else if(curr_pos_.z == 0) {
+		Fz = central_difference(pos + size3_t(0,0,1), pos - size3_t(0,0,1), spacing.z);
+	} else if(pos.z == 0) {
 		// forward diff in z
-		Fz = forward_difference(curr_pos_, curr_pos_ + size3_t(0,0,1), spacing.z);
+		Fz = forward_difference(pos + size3_t(0,0,1), pos, spacing.z);
 	} else {
 		// backward diff in z
-		Fz = backward_difference(curr_pos_ - size3_t(0,0,1), curr_pos_, spacing.z);
+		Fz = backward_difference(pos, pos - size3_t(0,0,1), spacing.z);
 	}
 	// store jacobian in column-major order... J = [Fx Fy Fz]
 	mat3 jacobian_;

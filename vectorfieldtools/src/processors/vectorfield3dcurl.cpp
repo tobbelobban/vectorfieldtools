@@ -63,9 +63,9 @@ void VectorField3DCurl::process() {
 				// jacobian in column-major order
 				mat3 j = jacobian_computer.get(vector_field, size3_t(ix,iy,iz));
 				 //compute & store curl 
-				dst_data[dst_index++] = -1.0f*vec3(	j[2][1] - j[1][2],		// v.z - w.y
-													j[0][2] - j[2][0],		// w.x - u.z 
-													j[1][0] - j[0][1] );	// u.y - v.x	
+				dst_data[dst_index++] = vec3(	j[1][2] - j[2][1],	
+												j[2][0] - j[0][2],		
+												j[0][1] - j[1][0]	);	
 			}
 		}
 	}
