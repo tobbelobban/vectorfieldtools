@@ -47,6 +47,22 @@ OkuboWeissGL::OkuboWeissGL() : VolumeGLProcessor("okuboweiss.frag") {
 
 OkuboWeissGL::~OkuboWeissGL() {}
 
-void OkuboWeissGL::postProcess() {}
+void OkuboWeissGL::postProcess() {
+	// determine min & max values for output volume dataMap_
+	const VolumeRAM* vol_ram = volume_->getRepresentation<VolumeRAM>();
+	const size3_t dims = vol_ram->getDimensions();
+	const float* vol_ram_ptr = static_cast<const float*>(vol_ram->getData());
+	// find min and max
+	float min = std::numeric_limits<float>::max();
+	float max = std::numeric_limits<float>::min();	
+	const size_t flattened_vol_size = dims.x * dims.y * dims.z;
+	float val;
+	for(size_t index = 0; index < flattened_vol_size; ++index) {
+		val = vol_ram_ptr[index];
+		if(val > max) max = val;
+		if(val < min) min = val;
+	}
+	volume_->dataMap_.valueRange = volume_->dataMap_.dataRange = vec2(min,max);
+}
 
 }  // namespace inviwo
