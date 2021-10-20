@@ -76,8 +76,7 @@ void QHunt::process() {
     QHunt->setBasis(vector_field->getBasis());
 	QHunt->setOffset(vector_field->getOffset());
 	QHunt->copyMetaDataFrom(*vector_field);	
-	QHunt->dataMap_.valueRange = vec2(min_val, max_val);
-	QHunt->dataMap_.dataRange = vec2(min_val, max_val);
+	QHunt->dataMap_.dataRange = QHunt->dataMap_.valueRange = vec2(min_val, max_val);	
 	QHunt->setModelMatrix(vector_field->getModelMatrix());
 	QHunt->setWorldMatrix(vector_field->getWorldMatrix());
     volume_out_.setData(QHunt);
