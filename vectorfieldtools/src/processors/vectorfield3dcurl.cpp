@@ -33,49 +33,50 @@ namespace inviwo {
 
 // The Class Identifier has to be globally unique. Use a reverse DNS naming scheme
 const ProcessorInfo VectorField3DCurl::processorInfo_{
-    "org.inviwo.VectorField3DCurl",      // Class identifier
-    "Vector Field 3D Curl",                // Display name
-    "Vector Field Visualization",              // Category
-    CodeState::Experimental,  // Code state
-    Tags::None,               // Tags
+	"org.inviwo.VectorField3DCurl",      // Class identifier
+	"Vector Field 3D Curl",                // Display name
+	"Vector Field Visualization",              // Category
+	CodeState::Experimental,  // Code state
+	Tags::None,               // Tags
 };
+	
 const ProcessorInfo VectorField3DCurl::getProcessorInfo() const { return processorInfo_; }
 
 VectorField3DCurl::VectorField3DCurl()
-    : Processor()
+	: Processor()
 	, vol_inport_("volume_inport")
-    , vol_outport_("volume_outport") {
-
-    addPort(vol_inport_);
-	addPort(vol_outport_);
+	, vol_outport_("volume_outport") {
+		addPort(vol_inport_);
+		addPort(vol_outport_);
 }
 
 void VectorField3DCurl::process() {
-    auto vector_field = vol_inport_.getData();
-    const size3_t vol_dims = vector_field->getDimensions();
-    auto dst_ram = std::make_shared<VolumeRAMPrecision<vec3>>(vol_dims);
-    vec3* dst_data = dst_ram->getDataTyped();
-    // iterate over each vector
+	auto vector_field = vol_inport_.getData();
+	const size3_t vol_dims = vector_field->getDimensions();
+	auto dst_ram = std::make_shared<VolumeRAMPrecision<vec3>>(vol_dims);
+	vec3* dst_data = dst_ram->getDataTyped();
+	// iterate over each vector
 	size_t dst_index = 0;
-    for(int iz = 0; iz < vol_dims.z; ++iz) {
+	for(int iz = 0; iz < vol_dims.z; ++iz) {
 		for(int iy = 0; iy < vol_dims.y; ++iy) {
 			for(int ix = 0; ix < vol_dims.x; ++ix) {
 				// jacobian in column-major order
 				mat3 j = jacobian_computer.get(vector_field, size3_t(ix,iy,iz));
-				 //compute & store curl 
+				//compute & store curl 
 				dst_data[dst_index++] = vec3(	j[1][2] - j[2][1],	
-												j[2][0] - j[0][2],		
-												j[0][1] - j[1][0]	);	
+								j[2][0] - j[0][2],		
+								j[0][1] - j[1][0] );	
 			}
 		}
 	}
 	std::shared_ptr<Volume> curl = std::make_shared<Volume>(dst_ram);
-    curl->setBasis(vector_field->getBasis());
+	curl->setBasis(vector_field->getBasis());
 	curl->setOffset(vector_field->getOffset());
 	curl->copyMetaDataFrom(*vector_field);	
 	curl->setModelMatrix(vector_field->getModelMatrix());
 	curl->setWorldMatrix(vector_field->getWorldMatrix());
-    vol_outport_.setData(curl);
+	
+	vol_outport_.setData(curl);
 }
 
 }  // namespace inviwo
