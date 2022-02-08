@@ -35,10 +35,10 @@
 
 namespace inviwo {
 
-/**
- * \brief jacobian for 3D vector field
+/*
+ *	jacobian for 3D vector field
  *	Approximates the Jacobian of a 3D vector field using finite differences. 
-	Has a single method get(vector field, pos) which returns the Jacobian at pos
+ *	Has a single method get(vector field, pos) which returns the Jacobian at pos
  */
 
 class IVW_MODULE_VECTORFIELDTOOLS_API JacobianCompute {
@@ -49,8 +49,8 @@ class IVW_MODULE_VECTORFIELDTOOLS_API JacobianCompute {
 	vec3 central_difference(const size3_t p1, const size3_t p2, const float h);
 
 public:
-    JacobianCompute() = default;
-    virtual ~JacobianCompute() = default;
+	JacobianCompute() = default;
+	virtual ~JacobianCompute() = default;
 	
 	/*
 	* gets the Jacobian at volume grid point pos = [x,y,z]
