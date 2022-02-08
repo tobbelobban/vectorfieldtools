@@ -39,32 +39,18 @@
 
 namespace inviwo {
 
-/** \docpage{org.inviwo.QHunt, QHunt}
- * ![](org.inviwo.QHunt.png?classIdentifier=org.inviwo.QHunt)
- * Explanation of how to use the processor.
- *
- * ### Inports
- *   * __<Inport1>__ <description>.
- *
- * ### Outports
- *   * __<Outport1>__ <description>.
- *
- * ### Properties
- *   * __<Prop1>__ <description>.
- *   * __<Prop2>__ <description>
- */
 class IVW_MODULE_VECTORFIELDTOOLS_API QHunt : public Processor {
 public:
-    QHunt();
-    virtual ~QHunt() = default;
+	QHunt();
+	virtual ~QHunt() = default;
 
-    virtual void process() override;
+	virtual void process() override;
 
-    virtual const ProcessorInfo getProcessorInfo() const override;
-    static const ProcessorInfo processorInfo_;
+	virtual const ProcessorInfo getProcessorInfo() const override;
+	static const ProcessorInfo processorInfo_;
 
 private:
-    VolumeInport volume_in_;
+	VolumeInport volume_in_;
 	VolumeOutport volume_out_;	
 
 	Omega2S2 omega2s2_;
