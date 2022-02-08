@@ -37,20 +37,6 @@
 
 namespace inviwo {
 
-/** \docpage{org.inviwo.OkuboWeissGL, Okubo Weiss GL}
- * ![](org.inviwo.OkuboWeissGL.png?classIdentifier=org.inviwo.OkuboWeissGL)
- * Explanation of how to use the processor.
- *
- * ### Inports
- *   * __<Inport1>__ <description>.
- *
- * ### Outports
- *   * __<Outport1>__ <description>.
- *
- * ### Properties
- *   * __<Prop1>__ <description>.
- *   * __<Prop2>__ <description>
- */
 class IVW_MODULE_VECTORFIELDTOOLS_API QHuntGL : public VolumeGLProcessor {
 public:
     QHuntGL();
