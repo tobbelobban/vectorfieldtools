@@ -31,26 +31,25 @@
 
 namespace inviwo {
 
-// The Class Identifier has to be globally unique. Use a reverse DNS naming scheme
 const ProcessorInfo Lambda2::processorInfo_{
-    "org.inviwo.Lambda2",      // Class identifier
-    "Lambda2",                // Display name
-    "Undefined",              // Category
-    CodeState::Experimental,  // Code state
-    Tags::None,               // Tags
+	"org.inviwo.Lambda2",      // Class identifier
+	"Lambda2",                // Display name
+	"Undefined",              // Category
+	CodeState::Experimental,  // Code state
+	Tags::None,               // Tags
 };
+	
 const ProcessorInfo Lambda2::getProcessorInfo() const { return processorInfo_; }
 
 Lambda2::Lambda2()
-    : Processor()
-    , volume_in_("Vector_field_volume_inport")
+    	: Processor()
+    	, volume_in_("Vector_field_volume_inport")
 	, volume_out_("Scalar_field_volume_outport") {
-
-    addPort(volume_in_);
+    	addPort(volume_in_);
 	addPort(volume_out_);
 }
 
-Eigen::Matrix3f Lambda2::glmToEigenMat3FLOAT(const glm::mat3 glm_mat3) {
+Eigen::Matrix3f Lambda2::glmToEigenMat3FLOAT(const glm::mat3& glm_mat3) {
 	Eigen::Matrix3f Eigen_mat3;
 	for(size_t col = 0; col < 3; ++col) {
 		for(size_t row = 0; row < 3; ++row) {
@@ -61,11 +60,11 @@ Eigen::Matrix3f Lambda2::glmToEigenMat3FLOAT(const glm::mat3 glm_mat3) {
 }
 
 void Lambda2::process() {
-    const std::shared_ptr<const Volume> vector_field = volume_in_.getData();
+    	const std::shared_ptr<const Volume> vector_field = volume_in_.getData();
 	const size3_t dims = vector_field->getDimensions();
 	// make dest volume
 	auto L2_vol_repr = std::make_shared<VolumeRAMPrecision<float>>(dims);
-    float* L2_raw_ptr = L2_vol_repr->getDataTyped();
+    	float* L2_raw_ptr = L2_vol_repr->getDataTyped();
 	// iterate over vector field and compute L2
 	float max_val = std::numeric_limits<float>::min();
 	float min_val = std::numeric_limits<float>::max();
@@ -84,14 +83,15 @@ void Lambda2::process() {
 		}	
 	}
 	std::shared_ptr<Volume> Lambda2 = std::make_shared<Volume>(L2_vol_repr);
-    Lambda2->setBasis(vector_field->getBasis());
+    	Lambda2->setBasis(vector_field->getBasis());
 	Lambda2->setOffset(vector_field->getOffset());
 	Lambda2->copyMetaDataFrom(*vector_field);	
 	Lambda2->dataMap_.valueRange = vec2(min_val, max_val);
 	Lambda2->dataMap_.dataRange = vec2(min_val, max_val);
 	Lambda2->setModelMatrix(vector_field->getModelMatrix());
 	Lambda2->setWorldMatrix(vector_field->getWorldMatrix());
-    volume_out_.setData(Lambda2);
+    
+	volume_out_.setData(Lambda2);
 }
 
 }  // namespace inviwo
