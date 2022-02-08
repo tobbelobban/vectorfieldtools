@@ -33,29 +33,28 @@ namespace inviwo {
 
 // The Class Identifier has to be globally unique. Use a reverse DNS naming scheme
 const ProcessorInfo OkuboWeiss::processorInfo_{
-    "org.inviwo.OkuboWeiss",      // Class identifier
-    "Okubo Weiss",                // Display name
-    "Vector Field Visualization",              // Category
-    CodeState::Experimental,  // Code state
-    Tags::None,               // Tags
+	"org.inviwo.OkuboWeiss",      	// Class identifier
+	"Okubo Weiss",                	// Display name
+	"Vector Field Visualization",	// Category
+	CodeState::Experimental,  	// Code state
+	Tags::None,               	// Tags
 };
 const ProcessorInfo OkuboWeiss::getProcessorInfo() const { return processorInfo_; }
 
 OkuboWeiss::OkuboWeiss()
-    : Processor()
-    , vol_inport_("Vector_field_volume_inport")
+	: Processor()
+	, vol_inport_("Vector_field_volume_inport")
 	, vol_outport_("Scalar_field_volume_outport") {
-    addPort(vol_inport_);
-	addPort(vol_outport_);
+		addPort(vol_inport_);
+		addPort(vol_outport_);
 }
 
 void OkuboWeiss::process() {
-	
-    const std::shared_ptr<const Volume> vector_field = vol_inport_.getData();
+    	const std::shared_ptr<const Volume> vector_field = vol_inport_.getData();
 	const size3_t dims = vector_field->getDimensions();
 	// make dest volume
 	auto okubo_weiss_vol_repr = std::make_shared<VolumeRAMPrecision<float>>(dims);
-    float* okubo_weiss_raw_ptr = okubo_weiss_vol_repr->getDataTyped();
+    	float* okubo_weiss_raw_ptr = okubo_weiss_vol_repr->getDataTyped();
 	// iterate over vector field and compute OW
 	size_t dst_index = 0;
 	float max_val = std::numeric_limits<float>::min();
@@ -67,7 +66,8 @@ void OkuboWeiss::process() {
 				mat3 j = jacobian_computer.get(vector_field, size3_t(ix,iy,iz));
 				// compute & store OW
 				// -2(v_x*u_y + w_x*u_z + v_z*w_y) - u_x^2 - v_y^2 - w_z^2
-				float res = -2.0f * (j[0][1]*j[1][0] + j[0][2]*j[2][0] + j[2][1]*j[1][2]) - j[0][0]*j[0][0] - j[1][1]*j[1][1] - j[2][2]*j[2][2];
+				float res = -2.0f * (j[0][1]*j[1][0] + j[0][2]*j[2][0] + j[2][1]*j[1][2])
+							- j[0][0]*j[0][0] - j[1][1]*j[1][1] - j[2][2]*j[2][2];
 				okubo_weiss_raw_ptr[dst_index++] = res;
 				if(res > max_val) max_val = res;
 				if(res < min_val) min_val = res;
@@ -75,14 +75,15 @@ void OkuboWeiss::process() {
 		}	
 	}
 	std::shared_ptr<Volume> OW = std::make_shared<Volume>(okubo_weiss_vol_repr);
-    OW->setBasis(vector_field->getBasis());
+    	OW->setBasis(vector_field->getBasis());
 	OW->setOffset(vector_field->getOffset());
 	OW->copyMetaDataFrom(*vector_field);	
 	OW->dataMap_.valueRange = vec2(min_val, max_val);
 	OW->dataMap_.dataRange = vec2(min_val, max_val);
 	OW->setModelMatrix(vector_field->getModelMatrix());
 	OW->setWorldMatrix(vector_field->getWorldMatrix());
-    vol_outport_.setData(OW);
+    	
+	vol_outport_.setData(OW);
 }
 
 }  // namespace inviwo
