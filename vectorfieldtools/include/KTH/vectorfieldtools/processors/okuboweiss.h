@@ -41,32 +41,18 @@
 
 namespace inviwo {
 
-/** \docpage{org.inviwo.OkuboWeiss, Okubo Weiss}
- * ![](org.inviwo.OkuboWeiss.png?classIdentifier=org.inviwo.OkuboWeiss)
- * Explanation of how to use the processor.
- *
- * ### Inports
- *   * __<Inport1>__ <description>.
- *
- * ### Outports
- *   * __<Outport1>__ <description>.
- *
- * ### Properties
- *   * __<Prop1>__ <description>.
- *   * __<Prop2>__ <description>
- */
 class IVW_MODULE_VECTORFIELDTOOLS_API OkuboWeiss : public Processor {
 public:
-    OkuboWeiss();
-    virtual ~OkuboWeiss() = default;
+	OkuboWeiss();
+	virtual ~OkuboWeiss() = default;
 
-    virtual void process() override;
+	virtual void process() override;
 
-    virtual const ProcessorInfo getProcessorInfo() const override;
-    static const ProcessorInfo processorInfo_;
+	virtual const ProcessorInfo getProcessorInfo() const override;
+	static const ProcessorInfo processorInfo_;
 
 private:
-    VolumeInport vol_inport_;
+	VolumeInport vol_inport_;
 	VolumeOutport vol_outport_;
 
 	JacobianCompute jacobian_computer;
