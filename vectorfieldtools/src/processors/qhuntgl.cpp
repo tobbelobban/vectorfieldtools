@@ -33,11 +33,11 @@ namespace inviwo {
 
 // The Class Identifier has to be globally unique. Use a reverse DNS naming scheme
 const ProcessorInfo QHuntGL::processorInfo_{
-    "org.inviwo.QHuntGL",  // Class identifier
-    "QHunt GL",           // Display name
-    "Vector Field Visualization",     // Category
-    CodeState::Stable,                // Code state
-    Tags::GL,                         // Tags
+	"org.inviwo.QHuntGL",  // Class identifier
+	"QHunt GL",           // Display name
+	"Vector Field Visualization",     // Category
+	CodeState::Stable,                // Code state
+	Tags::GL,                         // Tags
 };
 const ProcessorInfo QHuntGL::getProcessorInfo() const { return processorInfo_; }
 
@@ -48,7 +48,7 @@ QHuntGL::QHuntGL() : VolumeGLProcessor("qhunt.frag") {
 QHuntGL::~QHuntGL() {}
 
 void QHuntGL::postProcess() {
-// determine min & max values for output volume dataMap_
+	// determine min & max values for output volume->dataMap_
 	const VolumeRAM* vol_ram = volume_->getRepresentation<VolumeRAM>();
 	const size3_t dims = vol_ram->getDimensions();
 	const float* vol_ram_ptr = static_cast<const float*>(vol_ram->getData());
