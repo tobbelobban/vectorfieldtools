@@ -41,33 +41,19 @@
 #include <omp.h>
 
 namespace inviwo {
-
-/** \docpage{org.inviwo.VectorField3DCurl, Vector Field3DCurl}
- * ![](org.inviwo.VectorField3DCurl.png?classIdentifier=org.inviwo.VectorField3DCurl)
- * Explanation of how to use the processor.
- *
- * ### Inports
- *   * __<Inport1>__ <description>.
- *
- * ### Outports
- *   * __<Outport1>__ <description>.
- *
- * ### Properties
- *   * __<Prop1>__ <description>.
- *   * __<Prop2>__ <description>
- */
+	
 class IVW_MODULE_VECTORFIELDTOOLS_API VectorField3DCurl : public Processor {
 public:
-    VectorField3DCurl();
-    virtual ~VectorField3DCurl() = default;
+	VectorField3DCurl();
+	virtual ~VectorField3DCurl() = default;
 
-    virtual void process() override;
+	virtual void process() override;
 
-    virtual const ProcessorInfo getProcessorInfo() const override;
-    static const ProcessorInfo processorInfo_;
+	virtual const ProcessorInfo getProcessorInfo() const override;
+	static const ProcessorInfo processorInfo_;
 
 private:
-    VolumeInport vol_inport_;
+	VolumeInport vol_inport_;
 	VolumeOutport vol_outport_;
 
 	JacobianCompute jacobian_computer;
