@@ -31,9 +31,6 @@
 
 namespace inviwo {
 
-/*
-* Does (p2 - p1)/h
-*/
 vec3 JacobianCompute::forward_difference(const size3_t p2, const size3_t p1, const float h) {
 	const size3_t vec_dims = curr_vector_field_->getDimensions();
 	const size_t xy_ = vec_dims.x * vec_dims.y;
@@ -47,16 +44,11 @@ vec3 JacobianCompute::forward_difference(const size3_t p2, const size3_t p1, con
     );
 }
 
-/*
-* Does (p2 - p1)/h
-*/
 vec3 JacobianCompute::backward_difference(const size3_t p2, const size3_t p1, const float h) {
 	return forward_difference(p2,p1,h);
 }
 
-/*
-* Does (p2 - p1)/(2h)
-*/
+
 vec3 JacobianCompute::central_difference(const size3_t p2, const size3_t p1, const float h) {
 	return forward_difference(p2,p1, 2.0f*h);
 }
